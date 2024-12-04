@@ -1,0 +1,937 @@
+create database streaming_db;
+USE streaming_db;
+
+-- Tabla: Usuario
+CREATE TABLE USUARIO (
+    ID_usuario INT AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL,
+    numero_de_telefono VARCHAR(15) NOT NULL,
+    fecha_registro DATE,
+    tipo_de_suscripcion VARCHAR(20),
+    CONSTRAINT PK_USUARIO PRIMARY KEY (ID_usuario)
+);
+
+-- Tabla: Servicio de Streaming
+CREATE TABLE SERVICIO_DE_STREAMING (
+    ID_servicio INT AUTO_INCREMENT,
+    nombre_del_servicio VARCHAR(40) NOT NULL,
+    tipo_de_servicio VARCHAR(40) NOT NULL,
+    cantidad_de_pantallas_disponibles INT,
+    CONSTRAINT PK_SERVICIO_DE_STREAMING PRIMARY KEY (ID_servicio)
+);
+
+-- Tabla: Suscripción
+CREATE TABLE SUSCRIPCION (
+    ID_suscripcion INT AUTO_INCREMENT,
+    ID_servicio INT, -- Foreign Key que se relaciona con la tabla Servicio de Streaming
+    fecha_inicio DATE,
+    fecha_fin DATE,
+    correo_suscripcion VARCHAR(100) NOT NULL,
+    contrasena_suscripcion VARCHAR(100) NOT NULL,
+    estado VARCHAR(20) NOT NULL,
+    CONSTRAINT PK_SUSCRIPCION PRIMARY KEY (ID_suscripcion)
+);
+
+-- Tabla: Usuario_Suscripción
+CREATE TABLE USUARIO_SUSCRIPCION (
+    ID_usuario INT,  -- Foreign Key que se relaciona con la tabla Usuario
+    ID_suscripcion INT,  -- Foreign Key que se relaciona con la tabla Suscripcion
+    CONSTRAINT PK_USUARIO_SUSCRIPCION PRIMARY KEY (ID_usuario, ID_suscripcion)  -- Primary Key compuesta
+);
+
+-- Tabla: Pantalla
+CREATE TABLE PANTALLA (
+    ID_pantalla INT AUTO_INCREMENT,
+    ID_suscripcion INT,  -- Foreign Key que se relaciona con la tabla Suscripcion
+    numero_de_pantallas INT,
+    importe_por_pantalla DECIMAL(10,2),
+    CONSTRAINT PK_PANTALLA PRIMARY KEY (ID_pantalla)
+);
+
+-- Tabla: Perfil
+CREATE TABLE PERFIL (
+    ID_perfil INT AUTO_INCREMENT,
+    ID_usuario INT,  -- Foreign Key que se relaciona con la tabla Usuario
+    ID_pantalla INT UNIQUE,  -- Foreign Key que se relaciona con la tabla Pantalla
+    nombre_del_perfil VARCHAR(30),
+    pin CHAR(4) NOT NULL, 
+    CONSTRAINT PK_PERFIL PRIMARY KEY (ID_perfil)
+);
+
+-- Tabla: Pago
+CREATE TABLE PAGO (
+    ID_pago INT AUTO_INCREMENT,
+    ID_pantalla INT,  -- Foreign Key que se relaciona con la tabla Pantalla
+    fecha_de_pago DATE NOT NULL,
+    importe DECIMAL(10,2) NOT NULL,
+    metodo_de_pago VARCHAR(30) NOT NULL,
+    CONSTRAINT PK_PAGO PRIMARY KEY (ID_pago)
+);
+
+-- Tabla: Inversión
+CREATE TABLE INVERSION (
+    ID_inversion INT AUTO_INCREMENT,
+    ID_servicio INT,  -- Foreign Key que se relaciona con la tabla Servicio de Streaming
+    importe DECIMAL(10,2) NOT NULL,
+    fecha DATE NOT NULL,
+    metodo_de_pago VARCHAR(30) NOT NULL,
+    CONSTRAINT PK_INVERSION PRIMARY KEY (ID_inversion)
+);
+
+-- foreign keys
+
+-- Reference:  FK_SUSCRIPCION_SERVICIO_DE_STREAMING (tabla: SUSCRIPCION)
+ALTER TABLE SUSCRIPCION 
+ADD CONSTRAINT FK_SUSCRIPCION_SERVICIO_DE_STREAMING 
+FOREIGN KEY (ID_servicio)
+REFERENCES SERVICIO_DE_STREAMING (ID_servicio);
+
+-- Reference:  FK_USUARIO_SUSCRIPCION  (tabla: USUARIO_SUSCRIPCION)
+ALTER TABLE USUARIO_SUSCRIPCION 
+ADD CONSTRAINT FK_USUARIO_SUSCRIPCION FOREIGN KEY (ID_suscripcion)
+REFERENCES SUSCRIPCION (ID_suscripcion);
+
+-- Reference:  FK_USUARIO_SUSCRIPCION_USUARIO (tabla: USUARIO_SUSCRIPCION)
+ALTER TABLE USUARIO_SUSCRIPCION 
+ADD CONSTRAINT FK_USUARIO_SUSCRIPCION_USUARIO FOREIGN KEY (ID_usuario)
+REFERENCES USUARIO (ID_usuario);
+
+-- Reference:  FK_PANTALLA_SUSCRIPCION  (tabla: PANTALLA)
+ALTER TABLE PANTALLA 
+ADD CONSTRAINT FK_PANTALLA_SUSCRIPCION FOREIGN KEY (ID_suscripcion)
+REFERENCES SUSCRIPCION (ID_suscripcion);
+
+-- Reference:  FK_Perfil_Usuario  (tabla: PERFIL)
+ALTER TABLE PERFIL 
+ADD CONSTRAINT FK_PERFIL_USUARIO FOREIGN KEY (ID_usuario)
+REFERENCES USUARIO (ID_usuario);
+
+-- Reference:  FK_Perfil_Pantalla (tabla: PERFIL)
+ALTER TABLE PERFIL 
+ADD CONSTRAINT FK_PERFIL_PANTALLA FOREIGN KEY (ID_pantalla)
+REFERENCES PANTALLA (ID_pantalla);
+
+-- Reference:  FK_Pago_Pantalla  (tabla: PAGO)
+ALTER TABLE PAGO 
+ADD CONSTRAINT FK_PAGO_PANTALLA FOREIGN KEY (ID_pantalla)
+REFERENCES PANTALLA (ID_pantalla);
+
+-- Reference:  FK_Inversion_Servicio  (tabla: INVERSION)
+ALTER TABLE INVERSION 
+ADD CONSTRAINT FK_INVERSION_SERVICIO FOREIGN KEY (ID_servicio)
+REFERENCES SERVICIO_DE_STREAMING (ID_servicio);
+
+INSERT INTO USUARIO (nombre, numero_de_telefono, fecha_registro, tipo_de_suscripcion)
+VALUES
+('Reicer', '58 412-6103729', '2024-08-01', 'Premium'),
+('Edgar', '58 412-5415331', '2024-08-02', 'Basic'),
+('Daniel', '58 412-9258512', '2024-08-03', 'Premium'),
+('Rodney', '58 412-5555954', '2024-08-04', 'Premium'),
+('Erick', '58 414-1632255', '2024-08-05', 'Premium'),
+('Nelia', '58 414-1753367', '2024-08-06', 'Basic'),
+('Graciel', '58 424-7190110', '2024-08-07', 'Basic'),
+('Betza', '58 424-7562859', '2024-08-08', 'Basic'),
+('Maria Segovia', '58 424-9236606', '2024-08-09', 'Premium'),
+('Francisco', '58 416-2794298', '2024-08-10', 'Basic'),
+('Stephanie', '58 412-2701332', '2024-08-11', 'Premium'),
+('Leonardo', '58 412-0715516', '2024-08-12', 'Basic'),
+('Yeferson', '58 424-5724278', '2024-08-13', 'Basic'),
+('Mireya', '58 424-2658434', '2024-08-14', 'Basic'),
+('Wil', '58 424-5210186', '2024-08-15', 'Basic'),
+('Mafer', '1 929 594-7402', '2024-08-16', 'Basic'),
+('Stephanie Jauregui', '58 412-9968019', '2024-08-17', 'Premium'),
+('Chula', '58 424-1200999', '2024-08-18', 'Basic'),
+('Lisbeth', '58 412-3341355', '2024-08-19', 'Basic'),
+('Jessica', '34 747 43 67 06', '2024-08-20', 'Premium'),
+('Barbara', '58 424-7424969', '2024-08-21', 'Basic');
+
+INSERT INTO USUARIO (nombre, numero_de_telefono, fecha_registro, tipo_de_suscripcion)
+VALUES
+('Daniel Angelica', '58 412-9258512', '2024-08-03', 'Basic'),
+('Daniel Francisco', '58 412-9258512', '2024-08-03', 'Basic'),
+('Stephanie Ransesgandica', '58 412-2701332', '2024-08-11', 'Basic'),
+('Stephanie Alextrading', '58 412-9968019', '2024-08-17', 'Basic'),
+('Jessica', '34 747 43 67 06', '2024-08-20', 'Basic');
+
+
+INSERT INTO SERVICIO_DE_STREAMING (nombre_del_servicio, tipo_de_servicio, cantidad_de_pantallas_disponibles)
+VALUES
+('Spotify', 'Video', 5),
+('Disney', 'Video', 4),
+('HBO Max', 'Video', 3),
+('Crunchyroll', 'Video', 4),
+('Netflix', 'Video', 4),
+('Amazon Prime', 'Video', 4),
+('Youtube', 'Music', 4),
+('Paramount', 'Video', 4);
+
+INSERT INTO SUSCRIPCION (ID_servicio, fecha_inicio, fecha_fin, correo_suscripcion, contrasena_suscripcion, estado)
+VALUES
+(6, '2024-08-01', NULL, 'iruany_millan@hotmail.com', 'Millan89', 'Activa'),
+(6, '2024-10-08', '2024-11-08', 'iruanymillanm@gmail.com', 'Millan89', 'Inactiva'),
+(4, '2024-08-07', NULL, 'iruany.millan@gmail.com', 'Rey.1989', 'Activa'),
+(2, '2024-08-19', NULL, 'iruany.millan@gmail.com', 'leander.89', 'Activa'),
+(2, '2024-08-09', NULL, 'iruany_millan@hotmail.com', 'victoria2015', 'Activa'),
+(3, '2024-08-05', NULL, 'iruany.millan@gmail.com', 'millan89', 'Activa'),
+(3, '2024-08-13', NULL, 'iruany_millan@hotmail.com', 'millan89', 'Activa'),
+(5, '2024-08-24', NULL, 'iruanymillanm@gmail.com', 'jessica2407', 'Activa'),
+(5, '2024-08-17', NULL, 'iruany.millan@gmail.com', 'Miranda89', 'Activa'),
+(5, '2024-08-20', NULL, 'iruany_millan@hotmail.com', 'Pin', 'Activa'),
+(1, '2024-08-02', NULL, 'caribai.millan@gmail.com', 'leander2012', 'Activa'),
+(1, '2024-08-18', NULL, 'iruany.millan@gmail.com', 'Millan.89', 'Activa'),
+(1, '2024-08-15', NULL, 'iruany_millan@hotmail.com', 'Millan.89', 'Activa'),
+(1, '2024-08-30', NULL, 'lchmm90@gmail.com', 'Rey@2012.', 'Activa'),
+(7, '2024-08-19', NULL, 'iruany.millan@gmail.com', 'Miranda.1989', 'Activa');
+
+INSERT INTO USUARIO_SUSCRIPCION (ID_usuario, ID_suscripcion)
+VALUES
+(1, 13),
+(1, 14),
+(2, 5),
+(3, 11),
+(3, 14),
+(3, 12),
+(3, 13),
+(22, 13),
+(3, 5),
+(3, 4),
+(23, 4),
+(4, 9),
+(4, 6),
+(4, 1),
+(5, 3),
+(5, 6),
+(5, 5),
+(6, 11),
+(7, 11),
+(8, 6),
+(9, 7),
+(9, 4),
+(9, 10),
+(9, 1),
+(10, 13),
+(11, 12),
+(24, 12),
+(12, 9),
+(13, 12),
+(14, 11),
+(15, 10),
+(16, 10),
+(17, 14),
+(25, 14),
+(17, 8),
+(17, 5),
+(17, 7),
+(17, 6),
+(18, 8),
+(19, 1),
+(20, 8),
+(20, 15),
+(26, 15),
+(21, 14);
+
+INSERT INTO PANTALLA (ID_suscripcion, numero_de_pantallas, importe_por_pantalla)
+VALUES
+(1, 1, 2.5),
+(1, 1, 2.5),
+(1, 1, 2.5),
+(1, 1, 2.5),
+(2, 1, 2.5),
+(2, 1, 2.5),
+(2, 1, 2.5),
+(2, 1, 2.5),
+(3, 1, 3),
+(3, 1, 3),
+(3, 1, 3),
+(3, 1, 3),
+(4, 1, 4),
+(4, 1, 4),
+(4, 1, 4),
+(4, 1, 4),
+(5, 1, 4),
+(5, 1, 4),
+(5, 1, 4),
+(5, 1, 4),
+(6, 1, 2),
+(6, 1, 2),
+(6, 1, 2),
+(7, 1, 2),
+(7, 1, 2),
+(7, 1, 2),
+(8, 1, 7),
+(8, 1, 7),
+(8, 1, 7),
+(8, 1, 7),
+(9, 1, 7),
+(9, 1, 7),
+(9, 1, 7),
+(9, 1, 7),
+(10, 1, 7),
+(10, 1, 7),
+(10, 1, 7),
+(10, 1, 7),
+(11, 1, 7),
+(11, 1, 7),
+(11, 1, 7),
+(11, 1, 7),
+(11, 1, 7),
+(12, 1, 2),
+(12, 1, 2),
+(12, 1, 2),
+(12, 1, 2),
+(12, 1, 2),
+(13, 1, 2),
+(13, 1, 2),
+(13, 1, 2),
+(13, 1, 2),
+(13, 1, 2),
+(14, 1, 2),
+(14, 1, 2),
+(14, 1, 2),
+(14, 1, 2),
+(14, 1, 2),
+(15, 1, 2),
+(15, 1, 2),
+(15, 1, 2),
+(15, 1, 2);
+
+ALTER TABLE PERFIL MODIFY pin CHAR(4) NULL;
+
+INSERT INTO PERFIL (ID_usuario, ID_pantalla, nombre_del_perfil, pin)
+VALUES
+(4, 1, 'Rodney', '5954'),
+(9, 2, 'Maria Segovia', '6606'),
+(19, 3, 'Lisbeth', '1355'),
+(5, 9, 'Erick', '2255'),
+(3, 13, 'Daniel', '8512'),
+(9, 14, 'Maria Segovia', '6606'),
+(23, 15, 'Francisco', '8512'),
+(2, 17, 'Edgar', '5331'),
+(3, 18, 'Daniel', '8512'),
+(5, 19, 'Erick', '2255'),
+(17, 20, 'Stephanie Jauregui', '8019'),
+(4, 21, 'Rodney', '5954'),
+(5, 22, 'Erick', '2255'),
+(8, 23, 'Betza', '2859'),
+(17, 24, 'Stephanie Jauregui', '8019'),
+(9, 25, 'Maria Segovia', '6606'),
+(17, 26, 'Stephanie Jauregui', '8019'),
+(17, 27, 'Stephanie Jauregui', '8019'),
+(18, 28, 'Chula', '0999'),
+(20, 29, 'Jessica', '7006'),
+(4, 31, 'Rodney', '5954'),
+(12, 32, 'Leonardo', '5516'),
+(9, 35, 'Maria Segovia', '6606'),
+(15, 36, 'Wil', '0186'),
+(16, 37, 'Mafer', '7402'),
+(3, 39, 'Daniel', '8512'),
+(6, 40, 'Nelia', '3367'),
+(7, 41, 'Graciel', '0110'),
+(14, 42, 'Mireya', '8434'),
+(3, 44, 'Daniel', '8512'),
+(11, 45, 'Stephanie', '1332'),
+(13, 46, 'Yeferson', '4278'),
+(24, 47, 'Ransesgandica', '1332'),
+(1, 49, 'Reicer', '3729'),
+(3, 50, 'Daniel', '8512'),
+(10, 51, 'Francisco', '4298'),
+(22, 52, 'Angelica', '8512'),
+(1, 54, 'Reicer', '3729'),
+(3, 55, 'Daniel', '8512'),
+(17, 56, 'Stephanie Jauregui', '8019'),
+(21, 57, 'Barbara', '4969'),
+(25, 58, 'Alextrading', '8019'),
+(20, 59, 'Jessica', '7006'),
+(26, 60, 'Jessica', '7006'),
+(NULL, 4, NULL, NULL),
+(NULL, 5, NULL, NULL),
+(NULL, 6, NULL, NULL),
+(NULL, 7, NULL, NULL),
+(NULL, 8, NULL, NULL),
+(NULL, 10, NULL, NULL),
+(NULL, 11, NULL, NULL),
+(NULL, 12, NULL, NULL),
+(NULL, 16, NULL, NULL),
+(NULL, 30, NULL, NULL),
+(NULL, 33, NULL, NULL),
+(NULL, 34, NULL, NULL),
+(NULL, 38, NULL, NULL),
+(NULL, 43, NULL, NULL),
+(NULL, 48, NULL, NULL),
+(NULL, 53, NULL, NULL),
+(NULL, 61, NULL, NULL),
+(NULL, 62, NULL, NULL);
+
+INSERT INTO PAGO (ID_pantalla, fecha_de_pago, importe, metodo_de_pago)
+VALUES
+(13, '2024-08-02', 2.00, 'Débito'),
+(17, '2024-08-04', 3.00, 'Débito'),
+(39, '2024-08-05', 2.00, 'Débito'),
+(19, '2024-08-06', 3.00, 'Débito'),
+(22, '2024-08-06', 1.50, 'Débito'),
+(21, '2024-08-07', 2.00, 'Débito'),
+(13, '2024-08-08', 2.00, 'Débito'),
+(40, '2024-08-15', 2.00, 'Débito'),
+(23, '2024-08-16', 2.00, 'Débito'),
+(51, '2024-08-18', 2.00, 'Débito'),
+(32, '2024-08-19', 7.00, 'Débito'),
+(52, '2024-08-14', 2.00, 'Débito'),
+(39, '2024-08-14', 2.00, 'Débito'),
+(39, '2024-08-16', 2.00, 'Débito'),
+(39, '2024-08-17', 2.00, 'Débito'),
+(49, '2024-08-01', 2.00, 'Débito'),
+(49, '2024-08-04', 3.00, 'Débito'),
+(49, '2024-08-08', 3.00, 'Débito'),
+(29, '2024-08-08', 5.00, 'Débito'),
+(41, '2024-08-15', 2.00, 'Débito'),
+(31, '2024-08-17', 7.00, 'Débito'),
+(47, '2024-08-19', 2.00, 'Débito'),
+(45, '2024-08-19', 2.00, 'Débito'),
+(46, '2024-08-19', 2.00, 'Débito'),
+(36, '2024-08-22', 5.00, 'Débito'),
+(42, '2024-08-22', 2.00, 'Débito'),
+(35, '2024-08-21', 7.00, 'Débito'),
+(2, '2024-08-21', 2.00, 'Débito'),
+(2, '2024-08-21', 2.00, 'Débito'),
+(37, '2024-08-22', 7.00, 'Débito'),
+(37, '2024-08-22', 7.00, 'Débito'),
+(20, '2024-08-24', 3.00, 'Débito'),
+(24, '2024-08-24', 1.50, 'Débito'),
+(24, '2024-08-24', 1.50, 'Débito'),
+(56, '2024-08-24', 2.00, 'Débito'),
+(56, '2024-08-24', 2.00, 'Débito'),
+(27, '2024-08-24', 7.00, 'Débito'),
+(49, '2024-08-25', 2.00, 'Débito'),
+(1, '2024-08-24', 2.00, 'Débito'),
+(59, '2024-08-31', 2.00, 'Débito'),
+(59, '2024-08-31', 2.00, 'Débito'),
+(29, '2024-08-31', 7.00, 'Débito'),
+(49, '2024-09-01', 2.00, 'Débito'),
+(17, '2024-09-04', 3.00, 'Débito'),
+(39, '2024-09-05', 2.00, 'Débito'),
+(13, '2024-09-05', 3.00, 'Débito'),
+(59, '2024-09-30', 2.00, 'Débito'),
+(59, '2024-09-30', 2.00, 'Débito'),
+(29, '2024-09-30', 7.00, 'Débito'),
+(19, '2024-09-06', 3.00, 'Débito'),
+(22, '2024-09-06', 1.50, 'Débito'),
+(21, '2024-09-07', 2.00, 'Débito'),
+(1, '2024-09-11', 2.50, 'Débito'),
+(13, '2024-09-08', 3.00, 'Débito'),
+(13, '2024-09-11', 3.00, 'Débito'),
+(52, '2024-09-14', 2.00, 'Débito'),
+(39, '2024-09-14', 2.00, 'Débito'),
+(39, '2024-09-16', 2.00, 'Débito'),
+(39, '2024-09-17', 2.00, 'Débito'),
+(32, '2024-09-19', 7.00, 'Débito'),
+(40, '2024-09-15', 2.00, 'Débito'),
+(41, '2024-09-15', 2.00, 'Débito'),
+(23, '2024-09-16', 2.00, 'Débito'),
+(35, '2024-09-16', 7.00, 'Débito'),
+(14, '2024-09-16', 3.00, 'Débito'),
+(31, '2024-09-17', 7.00, 'Débito'),
+(2, '2024-09-16', 2.50, 'Débito'),
+(25, '2024-09-16', 2.00, 'Débito'),
+(47, '2024-09-19', 2.00, 'Débito'),
+(45, '2024-09-19', 2.00, 'Débito'),
+(46, '2024-09-19', 2.00, 'Débito'),
+(2, '2024-09-21', 2.50, 'Débito'),
+(36, '2024-09-22', 5.00, 'Débito'),
+(37, '2024-09-22', 7.00, 'Débito'),
+(57, '2024-09-23', 2.00, 'Débito'),
+(42, '2024-09-22', 2.00, 'Débito'),
+(20, '2024-09-24', 3.00, 'Débito'),
+(24, '2024-09-24', 1.50, 'Débito'),
+(24, '2024-09-24', 1.50, 'Débito'),
+(56, '2024-09-24', 2.00, 'Débito'),
+(56, '2024-09-24', 2.00, 'Débito'),
+(27, '2024-09-24', 7.00, 'Débito'),
+(1, '2024-09-24', 2.00, 'Débito'),
+(28, '2024-09-24', 5.00, 'Débito'),
+(49, '2024-09-25', 2.00, 'Débito'),
+(51, '2024-09-18', 2.00, 'Débito'),
+(49, '2024-10-01', 2.00, 'Débito'),
+(17, '2024-10-04', 3.00, 'Débito'),
+(39, '2024-10-05', 2.00, 'Débito'),
+(13, '2024-10-05', 3.00, 'Débito');
+
+
+INSERT INTO INVERSION (ID_servicio, importe, fecha, metodo_de_pago)
+VALUES
+(6, 3.08, '2024-08-01', 'Crédito'),
+(1, 2.77, '2024-08-02', 'Débito'),
+(3, 3.25, '2024-08-05', 'Crédito'),
+(4, 3.26, '2024-08-07', 'Crédito'),
+(2, 6.15, '2024-08-09', 'Crédito'),
+(3, 3.25, '2024-08-13', 'Crédito'),
+(1, 2.77, '2024-08-15', 'Débito'),
+(5, 10.00, '2024-08-17', 'Débito'),
+(1, 2.77, '2024-08-18', 'Débito'),
+(2, 3.08, '2024-08-19', 'Crédito'),
+(5, 15.00, '2024-08-20', 'Débito'),
+(7, 4.59, '2024-08-19', 'Débito'),
+(5, 15.00, '2024-08-24', 'Débito'),
+(1, 2.77, '2024-08-31', 'Débito'),
+(6, 3.08, '2024-09-01', 'Crédito'),
+(1, 2.78, '2024-09-02', 'Débito'),
+(3, 3.26, '2024-09-05', 'Crédito'),
+(2, 8.44, '2024-09-09', 'Crédito'),
+(6, 0.80, '2024-09-11', 'Débito'),
+(3, 3.38, '2024-09-13', 'Crédito'),
+(1, 5.33, '2024-09-15', 'Débito'),
+(5, 10.00, '2024-09-17', 'Débito'),
+(2, 8.79, '2024-09-19', 'Crédito'),
+(5, 15.00, '2024-09-20', 'Débito'),
+(5, 15.00, '2024-09-24', 'Débito'),
+(1, 4.44, '2024-09-18', 'Débito'),
+(7, 3.92, '2024-09-19', 'Débito'),
+(1, 4.44, '2024-09-30', 'Débito'),
+(6, 3.48, '2024-10-01', 'Crédito'),
+(1, 5.84, '2024-10-02', 'Crédito'),
+(3, 3.68, '2024-10-05', 'Crédito'),
+(2, 9.17, '2024-10-09', 'Crédito'),
+(3, 3.68, '2024-10-13', 'Crédito'),
+(1, 5.84, '2024-10-15', 'Crédito'),
+(5, 10.00, '2024-10-17', 'Débito'),
+(1, 5.84, '2024-10-18', 'Crédito'),
+(7, 5.01, '2024-10-19', 'Crédito'),
+(2, 9.17, '2024-10-19', 'Crédito'),
+(5, 14.00, '2024-10-20', 'Débito'),
+(5, 11.00, '2024-10-24', 'Débito'),
+(1, 5.84, '2024-10-30', 'Crédito'),
+(6, 3.60, '2024-11-01', 'Crédito'),
+(1, 6.05, '2024-11-02', 'Crédito'),
+(3, 3.81, '2024-11-05', 'Crédito'),
+(4, 4.80, '2024-11-07', 'Crédito'),
+(2, 13.78, '2024-11-09', 'Crédito'),
+(3, 3.81, '2024-11-13', 'Crédito'),
+(1, 6.05, '2024-11-15', 'Crédito'),
+(5, 10.00, '2024-11-17', 'Débito'),
+(1, 6.05, '2024-11-18', 'Crédito'),
+(7, 5.19, '2024-11-19', 'Crédito'),
+(2, 13.78, '2024-11-19', 'Crédito'),
+(5, 14.00, '2024-11-20', 'Débito'),
+(5, 11.00, '2024-11-24', 'Débito'),
+(1, 5.84, '2024-11-30', 'Crédito');
+
+
+-- Vistas
+
+-- Vista de Usuarios con sus Suscripciones Activas
+
+CREATE VIEW V_USUARIOS_SUSCRIPCIONES_ACTIVAS AS
+SELECT
+    U.ID_usuario,
+    U.nombre AS nombre_usuario,
+    U.numero_de_telefono,
+    S.ID_suscripcion,
+    S.correo_suscripcion,
+    S.fecha_inicio,
+    S.fecha_fin,
+    S.estado,
+    SS.nombre_del_servicio
+FROM
+    USUARIO U
+    INNER JOIN USUARIO_SUSCRIPCION US ON U.ID_usuario = US.ID_usuario
+    INNER JOIN SUSCRIPCION S ON US.ID_suscripcion = S.ID_suscripcion
+    INNER JOIN SERVICIO_DE_STREAMING SS ON S.ID_servicio = SS.ID_servicio
+WHERE
+    S.estado = 'activa';
+    
+-- Vista de Ingresos por Pantalla
+    
+CREATE VIEW V_INGRESOS_POR_PANTALLA AS
+SELECT
+    P.ID_pantalla,
+    S.ID_suscripcion,
+    SS.nombre_del_servicio,
+    SUM(PG.importe) AS total_ingresos
+FROM
+    PANTALLA P
+    INNER JOIN SUSCRIPCION S ON P.ID_suscripcion = S.ID_suscripcion
+    INNER JOIN SERVICIO_DE_STREAMING SS ON S.ID_servicio = SS.ID_servicio
+    INNER JOIN PAGO PG ON P.ID_pantalla = PG.ID_pantalla
+GROUP BY
+    P.ID_pantalla, S.ID_suscripcion, SS.nombre_del_servicio;
+
+
+-- Vista de Perfiles por Usuario
+
+CREATE VIEW V_PERFILES_POR_USUARIO AS
+SELECT
+    U.ID_usuario,
+    U.nombre AS nombre_usuario,
+    P.ID_perfil,
+    P.nombre_del_perfil,
+    P.pin,
+    PA.ID_pantalla,
+    PA.numero_de_pantallas
+FROM
+    USUARIO U
+    INNER JOIN PERFIL P ON U.ID_usuario = P.ID_usuario	
+    INNER JOIN PANTALLA PA ON P.ID_pantalla = PA.ID_pantalla;
+
+-- Vista de Inversiones por Servicio de Streaming
+
+CREATE VIEW V_INVERSIONES_POR_SERVICIO AS
+SELECT
+    SS.ID_servicio,
+    SS.nombre_del_servicio,
+    SUM(I.importe) AS total_inversiones,
+    COUNT(I.ID_inversion) AS cantidad_inversiones
+FROM
+    INVERSION I
+    INNER JOIN SERVICIO_DE_STREAMING SS ON I.ID_servicio = SS.ID_servicio
+GROUP BY
+    SS.ID_servicio, SS.nombre_del_servicio;
+  
+-- Vista de Pagos Realizados por Fecha
+
+CREATE VIEW V_PAGOS_REALIZADOS AS
+SELECT
+    PG.ID_pago,
+    PG.ID_pantalla,
+    SS.nombre_del_servicio,
+    PG.fecha_de_pago,
+    PG.importe,
+    PG.metodo_de_pago
+FROM
+    PAGO PG
+    INNER JOIN PANTALLA PA ON PG.ID_pantalla = PA.ID_pantalla
+    INNER JOIN SUSCRIPCION S ON PA.ID_suscripcion = S.ID_suscripcion
+    INNER JOIN SERVICIO_DE_STREAMING SS ON S.ID_servicio = SS.ID_servicio
+ORDER BY
+    PG.fecha_de_pago DESC;
+    
+-- Vista de Usuarios y Servicios Suscritos
+
+CREATE VIEW V_USUARIOS_SERVICIOS AS
+SELECT
+    U.ID_usuario,
+    U.nombre AS nombre_usuario,
+    SS.nombre_del_servicio,
+    S.fecha_inicio,
+    S.fecha_fin
+FROM
+    USUARIO U
+    INNER JOIN USUARIO_SUSCRIPCION US ON U.ID_usuario = US.ID_usuario
+    INNER JOIN SUSCRIPCION S ON US.ID_suscripcion = S.ID_suscripcion
+    INNER JOIN SERVICIO_DE_STREAMING SS ON S.ID_servicio = SS.ID_servicio;
+    
+-- Funciones 
+
+-- Función para Calcular el Total de Ingresos por Usuario
+
+DELIMITER //
+CREATE FUNCTION calcular_total_ingresos_usuario(ID_usuario INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE total_ingresos DECIMAL(10,2);
+    SELECT SUM(P.importe) INTO total_ingresos
+    FROM USUARIO U
+    INNER JOIN USUARIO_SUSCRIPCION US ON U.ID_usuario = US.ID_usuario
+    INNER JOIN SUSCRIPCION S ON US.ID_suscripcion = S.ID_suscripcion
+    INNER JOIN PANTALLA PA ON S.ID_suscripcion = PA.ID_suscripcion
+    INNER JOIN PAGO P ON PA.ID_pantalla = P.ID_pantalla
+    WHERE U.ID_usuario = ID_usuario;
+    RETURN IFNULL(total_ingresos, 0);
+END //
+DELIMITER ;
+
+-- Función para Obtener el Estado de una Suscripción
+
+DELIMITER //
+CREATE FUNCTION obtener_estado_suscripcion(p_ID_suscripcion INT)
+RETURNS VARCHAR(20)
+DETERMINISTIC
+BEGIN
+    DECLARE estado_suscripcion VARCHAR(20);
+    SELECT estado INTO estado_suscripcion
+    FROM SUSCRIPCION
+    WHERE ID_suscripcion = p_ID_suscripcion; -- Usar un alias único para la variable
+    RETURN estado_suscripcion;
+END //
+DELIMITER ;
+
+-- Función para Calcular el Costo Total de una Suscripción
+
+DELIMITER //
+CREATE FUNCTION calcular_costo_total_suscripcion(p_ID_suscripcion INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE costo_total DECIMAL(10,2);
+    SELECT SUM(importe_por_pantalla * numero_de_pantallas) 
+    INTO costo_total
+    FROM PANTALLA
+    WHERE ID_suscripcion = p_ID_suscripcion;
+    RETURN IFNULL(costo_total, 0);
+END //
+DELIMITER ;
+
+-- Función para Contar el Número de Perfiles de un Usuario
+
+DELIMITER //
+CREATE FUNCTION contar_perfiles_usuario(p_ID_usuario INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE numero_perfiles INT;
+    SELECT COUNT(*) INTO numero_perfiles
+    FROM PERFIL
+    WHERE ID_usuario = p_ID_usuario;
+    RETURN numero_perfiles;
+END //
+DELIMITER ;
+
+-- Función para Calcular el Total Invertido en un Servicio de Streaming
+
+DELIMITER //
+CREATE FUNCTION calcular_total_inversion(p_ID_servicio INT)
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE total_inversion DECIMAL(10,2);
+    SELECT SUM(importe) INTO total_inversion
+    FROM INVERSION
+    WHERE ID_servicio = p_ID_servicio;
+    RETURN IFNULL(total_inversion, 0);
+END //
+DELIMITER ;
+
+--  Función para Obtener el Nombre del Servicio de Streaming
+
+DELIMITER //
+CREATE FUNCTION obtener_nombre_servicio(p_ID_servicio INT)
+RETURNS VARCHAR(40)
+DETERMINISTIC
+BEGIN
+    DECLARE nombre_servicio VARCHAR(40);
+    SELECT nombre_del_servicio INTO nombre_servicio
+    FROM SERVICIO_DE_STREAMING
+    WHERE ID_servicio = p_ID_servicio
+    LIMIT 1; -- Limita a una fila para evitar errores
+    RETURN nombre_servicio;
+END //
+DELIMITER ;
+
+-- Stored Procedure 
+
+-- Stored Procedure para Registrar un Nuevo Usuario
+
+DELIMITER //
+CREATE PROCEDURE registrar_usuario(
+    IN p_nombre VARCHAR(50),
+    IN p_numero_de_telefono VARCHAR(15),
+    IN p_fecha_registro DATE,
+    IN p_tipo_de_suscripcion VARCHAR(20)
+)
+BEGIN
+    INSERT INTO USUARIO (nombre, numero_de_telefono, fecha_registro, tipo_de_suscripcion)
+    VALUES (p_nombre, p_numero_de_telefono, p_fecha_registro, p_tipo_de_suscripcion);
+END //
+DELIMITER ;
+
+-- Stored Procedure para Crear una Nueva Suscripción
+
+DELIMITER //
+CREATE PROCEDURE crear_suscripcion(
+    IN p_ID_usuario INT,
+    IN p_ID_servicio INT,
+    IN p_correo_suscripcion VARCHAR(100),
+    IN p_contrasena_suscripcion VARCHAR(100),
+    IN p_fecha_inicio DATE,
+    IN p_fecha_fin DATE,
+    IN p_estado VARCHAR(20)
+)
+BEGIN
+    DECLARE new_ID_suscripcion INT;
+
+    -- Insertar la nueva suscripción
+    INSERT INTO SUSCRIPCION (ID_servicio, fecha_inicio, fecha_fin, correo_suscripcion, contrasena_suscripcion, estado)
+    VALUES (p_ID_servicio, p_fecha_inicio, p_fecha_fin, p_correo_suscripcion, p_contrasena_suscripcion, p_estado);
+
+    -- Obtener el ID de la suscripción recién creada
+    SET new_ID_suscripcion = LAST_INSERT_ID();
+
+    -- Asociar la suscripción al usuario en la tabla Usuario_Suscripción
+    INSERT INTO USUARIO_SUSCRIPCION (ID_usuario, ID_suscripcion)
+    VALUES (p_ID_usuario, new_ID_suscripcion);
+END //
+DELIMITER ;
+
+-- Stored Procedure para Registrar un Pago
+
+DELIMITER //
+CREATE PROCEDURE registrar_pago(
+    IN p_ID_pantalla INT,
+    IN p_fecha_de_pago DATE,
+    IN p_importe DECIMAL(10,2),
+    IN p_metodo_de_pago VARCHAR(30)
+)
+BEGIN
+    INSERT INTO PAGO (ID_pantalla, fecha_de_pago, importe, metodo_de_pago)
+    VALUES (p_ID_pantalla, p_fecha_de_pago, p_importe, p_metodo_de_pago);
+END //
+DELIMITER ;
+
+-- Stored Procedure para Actualizar el Estado de una Suscripción
+
+DELIMITER //
+CREATE PROCEDURE actualizar_estado_suscripcion(
+    IN p_ID_suscripcion INT,
+    IN p_nuevo_estado VARCHAR(20)
+)
+BEGIN
+    UPDATE SUSCRIPCION
+    SET estado = p_nuevo_estado
+    WHERE ID_suscripcion = p_ID_suscripcion;
+END //
+DELIMITER ;
+
+-- Stored Procedure para Obtener el Resumen de Pagos de un Usuario
+
+DELIMITER //
+CREATE PROCEDURE obtener_resumen_pagos_usuario(
+    IN p_ID_usuario INT
+)
+BEGIN
+    SELECT
+        PG.metodo_de_pago,
+        SUM(PG.importe) AS total_pagado
+    FROM
+        USUARIO U
+        INNER JOIN USUARIO_SUSCRIPCION US ON U.ID_usuario = US.ID_usuario
+        INNER JOIN SUSCRIPCION S ON US.ID_suscripcion = S.ID_suscripcion
+        INNER JOIN PANTALLA PA ON S.ID_suscripcion = PA.ID_suscripcion
+        INNER JOIN PAGO PG ON PA.ID_pantalla = PG.ID_pantalla
+    WHERE
+        U.ID_usuario = p_ID_usuario
+    GROUP BY
+        PG.metodo_de_pago;
+END //
+DELIMITER ;
+
+-- Stored Procedure para Consultar las Inversiones en un Servicio de Streaming
+
+DELIMITER //
+CREATE PROCEDURE consultar_inversiones_servicio(
+    IN p_ID_servicio INT
+)
+BEGIN
+    SELECT
+        SS.nombre_del_servicio,
+        SUM(I.importe) AS total_invertido,
+        COUNT(I.ID_inversion) AS numero_de_inversiones
+    FROM
+        INVERSION I
+        INNER JOIN SERVICIO_DE_STREAMING SS ON I.ID_servicio = SS.ID_servicio
+    WHERE
+        I.ID_servicio = p_ID_servicio
+    GROUP BY
+        SS.nombre_del_servicio;
+END //
+DELIMITER ;
+
+-- Triggers
+
+-- Trigger para actualizar el estado de una suscripción al vencer
+
+DELIMITER //
+CREATE TRIGGER actualizar_estado_suscripcion
+AFTER UPDATE ON SUSCRIPCION
+FOR EACH ROW
+BEGIN
+    IF NEW.fecha_fin < CURDATE() THEN
+        UPDATE SUSCRIPCION
+        SET estado = 'inactiva'
+        WHERE ID_suscripcion = NEW.ID_suscripcion;
+    END IF;
+END //
+DELIMITER ;
+
+-- Trigger para registrar cambios en pagos
+
+CREATE TABLE AUDITORIA_PAGOS (
+    ID_auditoria INT AUTO_INCREMENT PRIMARY KEY,
+    ID_pago INT,
+    fecha_de_cambio DATETIME,
+    cambio VARCHAR(255)
+);
+
+DELIMITER //
+CREATE TRIGGER registrar_cambio_pago
+AFTER UPDATE ON PAGO
+FOR EACH ROW
+BEGIN
+    INSERT INTO AUDITORIA_PAGOS (ID_pago, fecha_de_cambio, cambio)
+    VALUES (NEW.ID_pago, NOW(), CONCAT('El importe cambió de ', OLD.importe, ' a ', NEW.importe));
+END //
+DELIMITER ;
+
+-- Trigger para prevenir usuarios duplicados
+
+DELIMITER //
+CREATE TRIGGER prevenir_usuarios_duplicados
+BEFORE INSERT ON USUARIO
+FOR EACH ROW
+BEGIN
+    DECLARE existe INT;
+    SELECT COUNT(*) INTO existe
+    FROM USUARIO
+    WHERE numero_de_telefono = NEW.numero_de_telefono;
+    
+    IF existe > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El número de teléfono ya existe.';
+    END IF;
+END //
+DELIMITER ;
+
+--  Trigger para ajustar el número de pantallas disponibles
+
+DELIMITER //
+CREATE TRIGGER ajustar_pantallas_disponibles
+AFTER INSERT ON PANTALLA
+FOR EACH ROW
+BEGIN
+    UPDATE SERVICIO_DE_STREAMING
+    SET cantidad_de_pantallas_disponibles = cantidad_de_pantallas_disponibles - NEW.numero_de_pantallas
+    WHERE ID_servicio = (SELECT ID_servicio FROM SUSCRIPCION WHERE ID_suscripcion = NEW.ID_suscripcion);
+END //
+DELIMITER ;
+
+-- Trigger para validar que el importe de una inversión no sea negativo
+
+DELIMITER //
+CREATE TRIGGER validar_importe_inversion
+BEFORE INSERT ON INVERSION
+FOR EACH ROW
+BEGIN
+    IF NEW.importe < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El importe de la inversión no puede ser negativo.';
+    END IF;
+END //
+DELIMITER ;
+
+-- Trigger para asignar automáticamente un perfil al crear una pantalla
+
+DELIMITER //
+CREATE TRIGGER crear_perfil_automatico
+AFTER INSERT ON PANTALLA
+FOR EACH ROW
+BEGIN
+    INSERT INTO PERFIL (ID_usuario, ID_pantalla, nombre_del_perfil, pin)
+    VALUES (
+        (SELECT ID_usuario FROM USUARIO_SUSCRIPCION WHERE ID_suscripcion = NEW.ID_suscripcion LIMIT 1),
+        NEW.ID_pantalla,
+        CONCAT('Perfil predeterminado para pantalla ', NEW.ID_pantalla),
+        '0000'
+    );
+END //
+DELIMITER ;
+
+
+
